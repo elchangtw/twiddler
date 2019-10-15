@@ -3,22 +3,102 @@
   <head>
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round&display=swap" rel="stylesheet">
   </head>
   <body>
     <script>
 
+      //var showingUser = false;
+      var currUser = 'none selected';
+
       $(document).ready(function(){
+
         var $body = $('body');
         $body.html('');
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
+        var $header = $('<header>Twiddler</header>');
+        $header.appendTo($body);
+
+        var $main = $('<main></main>');
+        $main.appendTo($body);
+        
+        var $div1 = $('<div></div>');
+        $div1.appendTo($main);
+
+        var $loadAllTweets = $('<button id="b2"></button>');
+        var $loadNewTweets = $('<button id="b1"></button>');
+        //$loadNewTweets.appendTo($main);
+        $loadAllTweets.appendTo($div1);
+        $loadAllTweets.click(function() {
+            showTweets();
+            $header.text("Twiddler");
+            currUser = 'none selected';
+        });
+        $loadNewTweets.appendTo($div1);
+        $loadNewTweets.click(function() {
+            showUserTimeline(currUser);
+        });
+        /*$loadNewTweets.appendTo($div1);
+        $loadNewTweets.click(function() {
+            showTweets();
+        });*/
+        /*if( showingUser==='true' ){
+          $loadNewTweets.appendTo($div1);
+          $loadNewTweets.click(function() {
+              showUserTimeline(currUser);
+          });
         }
+        else{
+          $loadNewTweets.appendTo($div1);
+          $loadNewTweets.click(function() {
+              showTweets();
+          });
+        }*/
+
+        var $tweets = $('<div class="tweets"></div>');
+        $tweets.appendTo($main);
+        //$tweets.appendTo($div1);
+
+        function loadTweets(tweets) {
+            $tweets.html('');
+
+            for(var i = tweets.length - 1; i >= 0; i--){
+              var tweet = tweets[i];
+
+              var $tweet = $('<div></div>');
+              $tweet.append('<p class="tweettext">@' + '<a class="user">' + tweet.user + '</a>' + ': ' + tweet.message + '</p>');              
+              var $timestamp = $('<p class="timestamp"></p>');
+              $timestamp.append(tweet.created_at);
+              $timestamp.appendTo($tweet);
+              $tweet.appendTo($tweets);
+            }
+
+            $('.user').on('click', function(event) {
+                showUserTimeline(event.target.text);
+                showingUser = true;
+                currUser = event.target.text;
+            });
+        }
+
+        function showUserTimeline(user) {
+            $header.text('Twiddler [ ' + user + ' ]');
+            $loadAllTweets.text('Show All');
+            //$loadNewTweets.text('Show New');
+            $loadNewTweets.text('Show New from User');
+            loadTweets(streams.users[user]);
+        }
+
+        function showTweets() {
+            $loadAllTweets.text('Show All');
+            //$loadNewTweets.text('Show New');
+            $loadNewTweets.text('Show New from User');
+            loadTweets(streams.home);
+        }
+
+        showTweets();
 
       });
 
